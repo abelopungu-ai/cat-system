@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Cat System 🎉</title>
+<title>Cat System OS 😛</title>
 
 <style>
 body{
@@ -10,7 +10,82 @@ body{
   font-family:'Segoe UI',sans-serif;
   background:#020617;
   color:white;
-  text-align:center;
+  display:flex;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:220px;
+  height:100vh;
+  background:#0f172a;
+  padding:20px;
+}
+
+.nav-btn{
+  margin:10px 0;
+  padding:10px;
+  background:#1e293b;
+  border-radius:8px;
+  cursor:pointer;
+}
+.nav-btn:hover{background:#3b82f6;}
+
+/* MAIN */
+.main{flex:1;padding:20px;}
+.screen{display:none;}
+.active{display:block;}
+
+/* CARD */
+.card{
+  background:#1e293b;
+  padding:20px;
+  border-radius:12px;
+  margin:10px;
+}
+
+/* CHAT */
+.msg{padding:10px;margin:10px;border-radius:10px;max-width:60%;}
+.me{background:#3b82f6;margin-left:auto;}
+.her{background:#334155;}
+
+/* GALLERY */
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.gallery img{width:100%;border-radius:10px;cursor:pointer;}
+
+/* VIEWER */
+#viewer{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.9);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+#viewer img{max-width:90%;border-radius:10px;}
+
+/* QUIZ */
+.option{
+  background:#334155;
+  padding:10px;
+  margin:10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+.option:hover{background:#3b82f6;}
+
+.progress{height:10px;background:#334155;border-radius:10px;}
+.progress-bar{height:100%;background:#3b82f6;width:0%;}
+
+/* NOTIFICATION */
+#notif{
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:#1e293b;
+  padding:15px;
+  border-radius:10px;
+  display:none;
 }
 
 /* LOCK */
@@ -20,234 +95,224 @@ body{
   height:100%;
   background:black;
   display:flex;
-  flex-direction:column;
   justify-content:center;
   align-items:center;
+  flex-direction:column;
 }
 
-input{
-  padding:10px;
-  border-radius:8px;
-  border:none;
+canvas{
+  position:fixed;
+  top:0;left:0;
+  z-index:-1;
 }
-
-button{
-  padding:10px 15px;
-  margin:10px;
-  border:none;
-  border-radius:10px;
-  background:linear-gradient(45deg,#3b82f6,#9333ea);
-  color:white;
-  cursor:pointer;
-}
-
-/* SCREENS */
-.screen{display:none;padding:20px;}
-.active{display:block;}
-
-/* CHAT */
-.chat{max-width:400px;margin:auto;}
-.msg{padding:10px;margin:10px;border-radius:10px;max-width:70%;opacity:0;transition:0.5s;}
-.msg.show{opacity:1;}
-.me{background:#3b82f6;margin-left:auto;}
-.her{background:#1e293b;}
-.typing{opacity:0.6;font-style:italic;}
-
-/* GALLERY */
-.gallery{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-}
-.gallery img{
-  width:100%;
-  border-radius:10px;
-  cursor:pointer;
-}
-
-/* QUIZ */
-.option{
-  background:#1e293b;
-  margin:10px;
-  padding:10px;
-  border-radius:8px;
-  cursor:pointer;
-}
-.option:hover{background:#3b82f6;}
 </style>
 </head>
 
 <body>
 
+<canvas id="bg"></canvas>
+
+<div id="notif"></div>
+
 <!-- LOCK -->
 <div id="lock">
-  <h2>Enter Password 🔐</h2>
-  <input type="password" id="pass">
-  <button id="unlockBtn">Enter</button>
+  <h2>Password 🔐</h2>
+  <input id="pass">
+  <button onclick="unlock()">Enter</button>
 </div>
 
-<!-- HOME -->
-<div id="home" class="screen">
-  <h1>🎂 Happy Birthday Cat 😛</h1>
-  <button onclick="goTo('chat')">💬 Chat</button>
-  <button onclick="goTo('gallery')">📸 Gallery</button>
-  <button onclick="goTo('quiz')">🎮 Quiz</button>
-  <button onclick="goTo('secret')">🔐 Secret</button>
-  <button onclick="playMusic()">🎵 Music</button>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="nav-btn" onclick="go('home')">🏠 Home</div>
+  <div class="nav-btn" onclick="go('chat')">💬 Chat</div>
+  <div class="nav-btn" onclick="go('gallery')">📸 Gallery</div>
+  <div class="nav-btn" onclick="go('quiz')">🎮 Quiz</div>
+  <div class="nav-btn" onclick="go('secret')">🔐 Secret</div>
+  <div class="nav-btn" onclick="playMusic()">🎵 Music</div>
 </div>
 
-<!-- CHAT -->
-<div id="chat" class="screen">
-  <h2>Chat 💬</h2>
-  <div id="chatBox" class="chat"></div>
-  <button onclick="startChat()">Start Chat</button>
-  <button onclick="goTo('home')">⬅ Back</button>
-</div>
+<!-- MAIN -->
+<div class="main">
 
-<!-- GALLERY -->
-<div id="gallery" class="screen">
-  <h2>Memories 📸</h2>
-  <div class="gallery">
-    <img src="img1.jpeg">
-    <img src="img2.jpeg">
-    <img src="img3.jpeg">
-    <img src="img4.jpeg">
-    <img src="img5.jpeg">
-    <img src="img6.jpeg">
+<div id="home" class="screen active">
+  <div class="card">
+    <h1>🎂 Happy Birthday Cat 😛</h1>
+    <p>This is literally a whole system I made for you 😤</p>
   </div>
-  <button onclick="goTo('home')">⬅ Back</button>
 </div>
 
-<!-- QUIZ -->
+<div id="chat" class="screen">
+  <div class="card">
+    <div id="chatBox"></div>
+    <button onclick="startChat()">Start Chat</button>
+  </div>
+</div>
+
+<div id="gallery" class="screen">
+  <div class="card">
+    <div class="gallery">
+      <img src="img1.jpeg" onclick="view(this.src)">
+      <img src="img2.jpeg" onclick="view(this.src)">
+      <img src="img3.jpeg" onclick="view(this.src)">
+      <img src="img4.jpeg" onclick="view(this.src)">
+      <img src="img5.jpeg" onclick="view(this.src)">
+      <img src="img6.jpeg" onclick="view(this.src)">
+    </div>
+  </div>
+</div>
+
 <div id="quiz" class="screen">
-  <h2>Quiz 😏</h2>
-  <div id="quizBox"></div>
-  <button onclick="goTo('home')">⬅ Back</button>
+  <div class="card">
+    <div class="progress"><div id="bar" class="progress-bar"></div></div>
+    <div id="quizBox"></div>
+  </div>
 </div>
 
-<!-- SECRET -->
 <div id="secret" class="screen">
-  <h2>Secret ❤️</h2>
-  <p id="secretText">Locked…</p>
-  <button onclick="reveal()">Reveal</button>
-  <button onclick="goTo('home')">⬅ Back</button>
+  <div class="card">
+    <p id="secretText">Locked...</p>
+    <button onclick="reveal()">Reveal</button>
+  </div>
+</div>
+
+</div>
+
+<!-- VIEWER -->
+<div id="viewer" onclick="closeViewer()">
+  <img id="fullImg">
 </div>
 
 <audio id="music" loop>
-  <source src="song.mp3" type="audio/mpeg">
+  <source src="song.mp3">
 </audio>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-
-const PASSWORD="banana girl";
-let unlockedSecret=false;
+let unlocked=false;
 
 /* UNLOCK */
-document.getElementById("unlockBtn").onclick=()=>{
-  let val=document.getElementById("pass").value.trim().toLowerCase();
-  if(val===PASSWORD){
+function unlock(){
+  if(document.getElementById("pass").value.toLowerCase()==="banana girl"){
     document.getElementById("lock").style.display="none";
-    goTo('home');
-  } else alert("Wrong password 😭");
-};
+    notify("Welcome Cat 😛");
+    setTimeout(()=>notify("Good morning Cat 😛"),2000);
+  } else alert("Wrong 😭");
+}
 
 /* NAV */
-window.goTo=function(screen){
+function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(screen).classList.add('active');
-};
+  document.getElementById(id).classList.add('active');
+}
+
+/* NOTIF */
+function notify(text){
+  let n=document.getElementById("notif");
+  n.innerText=text;
+  n.style.display="block";
+  setTimeout(()=>n.style.display="none",3000);
+}
 
 /* CHAT */
-const convo=[
-  {text:"Hey Cat 😄",type:"me"},
-  {text:"Happy late birthday...gift 🎉",type:"me"},
-  {text:"(this is how i'd imagine a reply😭) Wait… you remembered??",type:"her"},
-  {text:"Of course I did 😂",type:"me"},
-  {text:"You’re actually like a part of me(not weird😭)",type:"me"},
-  {text:"Aww stop 😭",type:"her"},
-  {text:"have fun with this🎉",type:"me"},
-  {text:"idk where you'll use this but have fun😂",type:"me"}
-];
-
-window.startChat=function(){
-  let i=0;
-  const box=document.getElementById("chatBox");
+function startChat(){
+  let convo=["Hey Cat 😄","I made this whole thing btw 😭","You're welcome 😌"];
+  let box=document.getElementById("chatBox");
   box.innerHTML="";
-
+  let i=0;
   function send(){
     if(i<convo.length){
-      let msg=document.createElement("div");
-      msg.className="msg "+convo[i].type;
-      msg.innerText=convo[i].text;
-      box.appendChild(msg);
-      setTimeout(()=>msg.classList.add("show"),50);
+      let m=document.createElement("div");
+      m.className="msg me";
+      m.innerText=convo[i];
+      box.appendChild(m);
       i++;
       setTimeout(send,1000);
     }
   }
   send();
-};
+}
+
+/* GALLERY */
+function view(src){
+  document.getElementById("viewer").style.display="flex";
+  document.getElementById("fullImg").src=src;
+}
+function closeViewer(){
+  document.getElementById("viewer").style.display="none";
+}
 
 /* QUIZ */
 const quiz=[
-  {q:"What do I usually call you?",options:["Cat 😝","Weirdo 😭","nigga🌚","All"],answer:3},
-  {q:"Who is more annoying?",options:["Me","You","Both 😭","Depends"],answer:2},
-  {q:"Favorite color?",options:["Grey","Green","Yellow","Orange"],answer:0},
-  {q:"My birthday?",options:["March 19","Jan 5","Dec 25","July 17"],answer:3},
-  {q:"First text?😭",options:["hiii😭","is that jenga?😭","happy birthday","hey"],answer:1},
-  {q:"Comfort food?",options:["Pizza","Chips","Chocolate","Ice cream"],answer:0},
-  {q:"Drink?",options:["Soda","Coffee","Juice","Water"],answer:3},
-  {q:"Emoji I spam?",options:["😂","😭","😛","❤️"],answer:1},
-  {q:"Free time?",options:["Gaming","Memes","Music","Sleep"],answer:2},
-  {q:"Funny habit?",options:["fumbling","funny😂","overthinking","All"],answer:3}
+  {q:"What do I call you?",o:["Cat","Weirdo","All","😭"],a:2},
+  {q:"Favorite food?",o:["Pizza","Chips","Chocolate","Ice cream"],a:0}
 ];
 
 let qi=0,score=0;
 
 function loadQuiz(){
   let box=document.getElementById("quizBox");
+  let bar=document.getElementById("bar");
+  bar.style.width=(qi/quiz.length*100)+"%";
 
   if(qi>=quiz.length){
-    if(score>=7) unlockedSecret=true;
-    box.innerHTML=`<h2>Score: ${score}/${quiz.length}</h2>`;
+    if(score>=1) unlocked=true;
+    box.innerHTML=`Score: ${score}/${quiz.length}`;
     return;
   }
 
   let q=quiz[qi];
   box.innerHTML=`<h3>${q.q}</h3>`;
 
-  q.options.forEach((opt,i)=>{
+  q.o.forEach((opt,i)=>{
     let d=document.createElement("div");
     d.className="option";
     d.innerText=opt;
     d.onclick=()=>{
-      if(i===q.answer) score++;
+      if(i===q.a) score++;
       qi++;
       loadQuiz();
     };
     box.appendChild(d);
   });
 }
-
 loadQuiz();
 
 /* SECRET */
-window.reveal=function(){
-  if(!unlockedSecret){
-    document.getElementById("secretText").innerText="🚫 Score higher in the quiz 😭";
+function reveal(){
+  if(!unlocked){
+    document.getElementById("secretText").innerText="🚫 Try harder 😭";
     return;
   }
-  document.getElementById("secretText").innerText=
-  "Okay… no jokes here,,I really appreciate you,, I love you nigga ❤️";
-};
+  document.getElementById("secretText").innerText="I actually appreciate you fr ❤️";
+  notify("Secret unlocked 🔐");
+}
 
 /* MUSIC */
-window.playMusic=function(){
+function playMusic(){
   document.getElementById("music").play();
-};
+}
 
-});
+/* PARTICLES */
+const c=document.getElementById("bg");
+const ctx=c.getContext("2d");
+c.width=window.innerWidth;
+c.height=window.innerHeight;
+
+let p=[];
+for(let i=0;i<100;i++){
+  p.push({x:Math.random()*c.width,y:Math.random()*c.height});
+}
+
+function draw(){
+  ctx.clearRect(0,0,c.width,c.height);
+  p.forEach(a=>{
+    ctx.fillStyle="white";
+    ctx.fillRect(a.x,a.y,2,2);
+    a.y+=0.5;
+    if(a.y>c.height)a.y=0;
+  });
+  requestAnimationFrame(draw);
+}
+draw();
 </script>
 
 </body>
