@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cat System 🎉</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:#020617;
+  color:white;
+  text-align:center;
+}
+
+/* LOCK */
+#lock{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:black;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+input{
+  padding:10px;
+  border-radius:8px;
+  border:none;
+}
+
+button{
+  padding:10px 15px;
+  margin:10px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(45deg,#3b82f6,#9333ea);
+  color:white;
+  cursor:pointer;
+}
+
+/* SCREENS */
+.screen{display:none;padding:20px;}
+.active{display:block;}
+
+/* CHAT */
+.chat{max-width:400px;margin:auto;}
+.msg{padding:10px;margin:10px;border-radius:10px;max-width:70%;opacity:0;transition:0.5s;}
+.msg.show{opacity:1;}
+.me{background:#3b82f6;margin-left:auto;}
+.her{background:#1e293b;}
+.typing{opacity:0.6;font-style:italic;}
+
+/* QUIZ */
+.option{
+  background:#1e293b;
+  margin:10px;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+.option:hover{background:#3b82f6;}
+</style>
+</head>
+
+<body>
+
+<!-- LOCK -->
+<div id="lock">
+  <h2>Enter Password 🔐</h2>
+  <input type="password" id="pass">
+  <button id="unlockBtn">Enter</button>
+</div>
+
+<!-- HOME -->
+<div id="home" class="screen">
+  <h1>🎂 Happy Birthday Cat 😛</h1>
+  <button onclick="goTo('chat')">💬 Chat</button>
+  <button onclick="goTo('quiz')">🎮 Quiz</button>
+  <button onclick="goTo('secret')">🔐 Secret</button>
+</div>
+
+<!-- CHAT -->
+<div id="chat" class="screen">
+  <h2>Chat 💬</h2>
+  <div id="chatBox" class="chat"></div>
+  <button onclick="startChat()">Start Chat</button>
+  <button onclick="goTo('home')">⬅ Back</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <h2>Quiz 😏</h2>
+  <div id="quizBox"></div>
+  <button onclick="goTo('home')">⬅ Back</button>
+</div>
+
+<!-- SECRET -->
+<div id="secret" class="screen">
+  <h2>Secret ❤️</h2>
+  <p id="secretText">Locked…</p>
+  <button onclick="reveal()">Reveal</button>
+  <button onclick="goTo('home')">⬅ Back</button>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+const PASSWORD = "banana girl";
+let unlockedSecret = false;
+
+/* UNLOCK */
+document.getElementById("unlockBtn").onclick = () => {
+  let val = document.getElementById("pass").value.trim().toLowerCase();
+  if(val === PASSWORD){
+    document.getElementById("lock").style.display="none";
+    goTo('home');
+  } else {
+    alert("Wrong password 😭");
+  }
+};
+
+/* NAV */
+window.goTo = function(screen){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(screen).classList.add('active');
+};
+
+/* CHAT */
+const convo=[
+  {text:"Hey Cat 😄",type:"me"},
+  {text:"Happy late birthday...gift 🎉",type:"me"},
+  {text:"(this is how i'd imagine a reply😭) Wait… you remembered??",type:"her"},
+  {text:"Of course I did 😂",type:"me"},
+  {text:"You’re actually like a part of me(not weird😭)",type:"me"},
+  {text:"Aww stop 😭",type:"her"},
+  {text:"have fun with this🎉",type:"me"},
+  {text:"idk where you'll use this but have fun😂",type:"me"}
+];
+
+window.startChat = function(){
+  let i=0;
+  const box=document.getElementById("chatBox");
+  box.innerHTML="";
+
+  function send(){
+    if(i < convo.length){
+      if(convo[i].type==="her"){
+        let typing=document.createElement("div");
+        typing.className="msg her typing";
+        typing.innerText="typing...";
+        box.appendChild(typing);
+
+        setTimeout(()=>{
+          typing.remove();
+          let msg=document.createElement("div");
+          msg.className="msg her";
+          msg.innerText=convo[i].text;
+          box.appendChild(msg);
+          setTimeout(()=>msg.classList.add("show"),50);
+          i++;
+          setTimeout(send,1200);
+        },1500);
+      } else {
+        let msg=document.createElement("div");
+        msg.className="msg me";
+        msg.innerText=convo[i].text;
+        box.appendChild(msg);
+        setTimeout(()=>msg.classList.add("show"),50);
+        i++;
+        setTimeout(send,1000);
+      }
+    }
+  }
+  send();
+};
+
+/* QUIZ */
+const quiz = [
+  {q:"What do I usually call you?",options:["Cat 😝","Weirdo 😭","nigga🌚","All"],answer:3},
+  {q:"Who is more annoying?",options:["Me","You","Both 😭","Depends"],answer:2},
+  {q:"Favorite color?",options:["Grey","Green","Yellow","Orange"],answer:0},
+  {q:"My birthday?",options:["March 19","Jan 5","Dec 25","July 17"],answer:3},
+  {q:"First text?😭",options:["hiii😭","is that jenga?😭","happy birthday","hey"],answer:1},
+  {q:"Comfort food?",options:["Pizza","Chips","Chocolate","Ice cream"],answer:0},
+  {q:"Drink?",options:["Soda","Coffee","Juice","Water"],answer:3},
+  {q:"Emoji I spam?",options:["😂","😭","😛","❤️"],answer:1},
+  {q:"Free time?",options:["Gaming","Memes","Music","Sleep"],answer:2},
+  {q:"Funny habit?",options:["fumbling","funny😂","overthinking","All"],answer:3}
+];
+
+let qi=0,score=0;
+
+function loadQuiz(){
+  let box=document.getElementById("quizBox");
+
+  if(qi>=quiz.length){
+    if(score>=7) unlockedSecret=true;
+
+    box.innerHTML=`<h2>Score: ${score}/${quiz.length}</h2>`;
+    return;
+  }
+
+  let q=quiz[qi];
+  box.innerHTML=`<h3>${q.q}</h3>`;
+
+  q.options.forEach((opt,i)=>{
+    let d=document.createElement("div");
+    d.className="option";
+    d.innerText=opt;
+    d.onclick=()=>{
+      if(i===q.answer) score++;
+      qi++;
+      loadQuiz();
+    };
+    box.appendChild(d);
+  });
+}
+
+loadQuiz();
+
+/* SECRET */
+window.reveal = function(){
+  if(!unlockedSecret){
+    document.getElementById("secretText").innerText="🚫 Score higher in the quiz 😭";
+    return;
+  }
+  document.getElementById("secretText").innerText=
+  "Okay… no jokes here,,I really appreciate you,, I love you nigga ❤️";
+};
+
+});
+</script>
+
+</body>
+</html>
