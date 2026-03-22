@@ -53,6 +53,18 @@ button{
 .her{background:#1e293b;}
 .typing{opacity:0.6;font-style:italic;}
 
+/* GALLERY */
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.gallery img{
+  width:100%;
+  border-radius:10px;
+  cursor:pointer;
+}
+
 /* QUIZ */
 .option{
   background:#1e293b;
@@ -78,8 +90,10 @@ button{
 <div id="home" class="screen">
   <h1>🎂 Happy Birthday Cat 😛</h1>
   <button onclick="goTo('chat')">💬 Chat</button>
+  <button onclick="goTo('gallery')">📸 Gallery</button>
   <button onclick="goTo('quiz')">🎮 Quiz</button>
   <button onclick="goTo('secret')">🔐 Secret</button>
+  <button onclick="playMusic()">🎵 Music</button>
 </div>
 
 <!-- CHAT -->
@@ -87,6 +101,20 @@ button{
   <h2>Chat 💬</h2>
   <div id="chatBox" class="chat"></div>
   <button onclick="startChat()">Start Chat</button>
+  <button onclick="goTo('home')">⬅ Back</button>
+</div>
+
+<!-- GALLERY -->
+<div id="gallery" class="screen">
+  <h2>Memories 📸</h2>
+  <div class="gallery">
+    <img src="img1.jpeg">
+    <img src="img2.jpeg">
+    <img src="img3.jpeg">
+    <img src="img4.jpeg">
+    <img src="img5.jpeg">
+    <img src="img6.jpeg">
+  </div>
   <button onclick="goTo('home')">⬅ Back</button>
 </div>
 
@@ -105,25 +133,27 @@ button{
   <button onclick="goTo('home')">⬅ Back</button>
 </div>
 
+<audio id="music" loop>
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-const PASSWORD = "banana girl";
-let unlockedSecret = false;
+const PASSWORD="banana girl";
+let unlockedSecret=false;
 
 /* UNLOCK */
-document.getElementById("unlockBtn").onclick = () => {
-  let val = document.getElementById("pass").value.trim().toLowerCase();
-  if(val === PASSWORD){
+document.getElementById("unlockBtn").onclick=()=>{
+  let val=document.getElementById("pass").value.trim().toLowerCase();
+  if(val===PASSWORD){
     document.getElementById("lock").style.display="none";
     goTo('home');
-  } else {
-    alert("Wrong password 😭");
-  }
+  } else alert("Wrong password 😭");
 };
 
 /* NAV */
-window.goTo = function(screen){
+window.goTo=function(screen){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(screen).classList.add('active');
 };
@@ -140,45 +170,27 @@ const convo=[
   {text:"idk where you'll use this but have fun😂",type:"me"}
 ];
 
-window.startChat = function(){
+window.startChat=function(){
   let i=0;
   const box=document.getElementById("chatBox");
   box.innerHTML="";
 
   function send(){
-    if(i < convo.length){
-      if(convo[i].type==="her"){
-        let typing=document.createElement("div");
-        typing.className="msg her typing";
-        typing.innerText="typing...";
-        box.appendChild(typing);
-
-        setTimeout(()=>{
-          typing.remove();
-          let msg=document.createElement("div");
-          msg.className="msg her";
-          msg.innerText=convo[i].text;
-          box.appendChild(msg);
-          setTimeout(()=>msg.classList.add("show"),50);
-          i++;
-          setTimeout(send,1200);
-        },1500);
-      } else {
-        let msg=document.createElement("div");
-        msg.className="msg me";
-        msg.innerText=convo[i].text;
-        box.appendChild(msg);
-        setTimeout(()=>msg.classList.add("show"),50);
-        i++;
-        setTimeout(send,1000);
-      }
+    if(i<convo.length){
+      let msg=document.createElement("div");
+      msg.className="msg "+convo[i].type;
+      msg.innerText=convo[i].text;
+      box.appendChild(msg);
+      setTimeout(()=>msg.classList.add("show"),50);
+      i++;
+      setTimeout(send,1000);
     }
   }
   send();
 };
 
 /* QUIZ */
-const quiz = [
+const quiz=[
   {q:"What do I usually call you?",options:["Cat 😝","Weirdo 😭","nigga🌚","All"],answer:3},
   {q:"Who is more annoying?",options:["Me","You","Both 😭","Depends"],answer:2},
   {q:"Favorite color?",options:["Grey","Green","Yellow","Orange"],answer:0},
@@ -198,7 +210,6 @@ function loadQuiz(){
 
   if(qi>=quiz.length){
     if(score>=7) unlockedSecret=true;
-
     box.innerHTML=`<h2>Score: ${score}/${quiz.length}</h2>`;
     return;
   }
@@ -222,13 +233,18 @@ function loadQuiz(){
 loadQuiz();
 
 /* SECRET */
-window.reveal = function(){
+window.reveal=function(){
   if(!unlockedSecret){
     document.getElementById("secretText").innerText="🚫 Score higher in the quiz 😭";
     return;
   }
   document.getElementById("secretText").innerText=
   "Okay… no jokes here,,I really appreciate you,, I love you nigga ❤️";
+};
+
+/* MUSIC */
+window.playMusic=function(){
+  document.getElementById("music").play();
 };
 
 });
