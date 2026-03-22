@@ -3,23 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <title>Cat System 🎉</title>
+
 <style>
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
   background:#020617;
   color:white;
-  overflow:hidden;
-}
-
-/* PARTICLES BACKGROUND */
-#particles{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  z-index:-1;
+  text-align:center;
 }
 
 /* LOCK */
@@ -32,63 +23,31 @@ body{
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  z-index:100;
 }
+
 input{
   padding:10px;
   border-radius:8px;
   border:none;
-  margin:10px 0;
 }
+
 button{
   padding:10px 15px;
-  margin:5px;
+  margin:10px;
   border:none;
   border-radius:10px;
   background:linear-gradient(45deg,#3b82f6,#9333ea);
   color:white;
   cursor:pointer;
-  transition:0.3s;
 }
-button:hover{transform:scale(1.1);}
 
 /* SCREENS */
-.screen{display:none;padding:20px;transition:0.5s;transform:translateY(20px);opacity:0;}
-.screen.active{display:block;transform:translateY(0);opacity:1;}
-
-/* TASKBAR */
-#taskbar{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:rgba(0,0,0,0.8);
-  display:flex;
-  justify-content:center;
-  padding:10px 0;
-  z-index:50;
-}
-#taskbar button{
-  margin:0 10px;
-  font-size:16px;
-}
+.screen{display:none;padding:20px;}
+.active{display:block;}
 
 /* CHAT */
-.chat{
-  max-width:400px;
-  min-height:300px;
-  margin:auto;
-  overflow:auto;
-  position:relative;
-  cursor:grab;
-}
-.msg{
-  padding:10px;
-  margin:10px;
-  border-radius:10px;
-  max-width:70%;
-  opacity:0;
-  transition:0.5s;
-}
+.chat{max-width:400px;margin:auto;}
+.msg{padding:10px;margin:10px;border-radius:10px;max-width:70%;opacity:0;transition:0.5s;}
 .msg.show{opacity:1;}
 .me{background:#3b82f6;margin-left:auto;}
 .her{background:#1e293b;}
@@ -104,65 +63,65 @@ button:hover{transform:scale(1.1);}
   width:100%;
   border-radius:10px;
   cursor:pointer;
-  transition:0.5s;
 }
-.gallery img:hover{transform:scale(1.05) rotate(2deg);}
 
 /* QUIZ */
-#quizBox{position:relative;}
 .option{
   background:#1e293b;
   margin:10px;
   padding:10px;
   border-radius:8px;
   cursor:pointer;
-  transition:0.3s;
 }
 .option:hover{background:#3b82f6;}
 
-/* SECRET */
-#secretText{min-height:60px;}
-
-/* NOTIFICATION */
-#notif{
-  position:fixed;
-  bottom:70px;
-  right:20px;
-  background:#3b82f6;
-  padding:15px 20px;
-  border-radius:10px;
-  display:none;
-  font-weight:bold;
-  z-index:999;
-  box-shadow:0 0 10px #000;
-  transform:scale(1);
-  transition:0.2s;
-}
-
-/* MEMORY GAME */
-#memory{
-  display:none;
+/* MEMORY */
+#memoryGrid{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
   max-width:500px;
   margin:auto;
-  text-align:center;
 }
 .card{
   width:100px;
   height:100px;
-  display:inline-block;
   margin:5px;
-  background:#1e293b;
+  background:#1e293b url('back.jpeg') center/cover no-repeat;
   border-radius:10px;
   cursor:pointer;
   vertical-align:top;
-  transition:0.3s;
+  transition:0.3s transform,0.3s background;
 }
-.card.flipped{background:#3b82f6; background-size:cover;}
+.card.flipped{
+  transform:rotateY(180deg);
+  background-size:cover;
+}
+
+/* CONFETTI */
+#particles{
+  position:fixed;
+  top:0;left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* NOTIFICATION */
+#notify{
+  position:fixed;
+  top:10px;
+  right:10px;
+  background:#3b82f6;
+  padding:10px 15px;
+  border-radius:10px;
+  display:none;
+}
 </style>
 </head>
-<body>
 
-<canvas id="particles"></canvas>
+<body>
 
 <!-- LOCK -->
 <div id="lock">
@@ -172,16 +131,14 @@ button:hover{transform:scale(1.1);}
 </div>
 
 <!-- HOME -->
-<div id="home" class="screen active">
+<div id="home" class="screen">
   <h1>🎂 Happy Birthday Cat 😛</h1>
-  <div class="navbar">
-    <button onclick="goTo('chat')">💬 Chat</button>
-    <button onclick="goTo('gallery')">📸 Gallery</button>
-    <button onclick="goTo('quiz')">🎮 Quiz</button>
-    <button onclick="goTo('memory')">🃏 Memory Game</button>
-    <button onclick="goTo('secret')">🔐 Secret</button>
-    <button onclick="playMusic()">🎵 Music</button>
-  </div>
+  <button onclick="goTo('chat')">💬 Chat</button>
+  <button onclick="goTo('gallery')">📸 Gallery</button>
+  <button onclick="goTo('quiz')">🎮 Quiz</button>
+  <button onclick="goTo('memory')">🧩 Memory</button>
+  <button onclick="goTo('secret')">🔐 Secret</button>
+  <button onclick="playMusic()">🎵 Music</button>
 </div>
 
 <!-- CHAT -->
@@ -213,10 +170,11 @@ button:hover{transform:scale(1.1);}
   <button onclick="goTo('home')">⬅ Back</button>
 </div>
 
-<!-- MEMORY GAME -->
+<!-- MEMORY -->
 <div id="memory" class="screen">
-  <h2>Memory Game 🃏</h2>
+  <h2>Memory Game 🧩</h2>
   <div id="memoryGrid"></div>
+  <button onclick="startMemory()">Restart Memory</button>
   <button onclick="goTo('home')">⬅ Back</button>
 </div>
 
@@ -228,243 +186,209 @@ button:hover{transform:scale(1.1);}
   <button onclick="goTo('home')">⬅ Back</button>
 </div>
 
-<!-- MUSIC -->
+<!-- CONFETTI -->
+<canvas id="particles"></canvas>
+
+<!-- NOTIFICATION -->
+<div id="notify"></div>
+
 <audio id="music" loop>
   <source src="song.mp3" type="audio/mpeg">
 </audio>
 
-<!-- NOTIFICATION -->
-<div id="notif"></div>
-
-<!-- TASKBAR -->
-<div id="taskbar">
-  <button onclick="goTo('chat')">Chat</button>
-  <button onclick="goTo('gallery')">Gallery</button>
-  <button onclick="goTo('quiz')">Quiz</button>
-  <button onclick="goTo('memory')">Memory</button>
-  <button onclick="goTo('secret')">Secret</button>
-</div>
-
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", () => {
+  const PASSWORD="banana girl";
+  let unlockedSecret=false;
 
-const PASSWORD="banana girl";
-let unlockedSecret=false;
+  /* UNLOCK */
+  document.getElementById("unlockBtn").onclick=()=>{
+    let val=document.getElementById("pass").value.trim().toLowerCase();
+    if(val===PASSWORD){
+      document.getElementById("lock").style.display="none";
+      goTo('home');
+    } else alert("Wrong password 😭");
+  };
 
-/* UNLOCK */
-document.getElementById("unlockBtn").onclick=()=>{
-  let val=document.getElementById("pass").value.trim().toLowerCase();
-  if(val===PASSWORD){
-    document.getElementById("lock").style.display="none";
-    goTo('home');
-  } else alert("Wrong password 😭");
-};
+  /* NAV */
+  window.goTo=function(screen){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(screen).classList.add('active');
+  };
 
-/* NAV */
-window.goTo=function(screen){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(screen).classList.add('active');
-  if(screen==='memory') startMemory();
-};
+  /* CHAT */
+  const convo=[
+    {text:"Hey Cat 😄",type:"me"},
+    {text:"Happy late birthday...gift 🎉",type:"me"},
+    {text:"(this is how i'd imagine a reply😭) Wait… you remembered??",type:"her"},
+    {text:"Of course I did 😂",type:"me"},
+    {text:"You’re actually like a part of me(not weird😭)",type:"me"},
+    {text:"Aww stop 😭",type:"her"},
+    {text:"have fun with this🎉",type:"me"},
+    {text:"idk where you'll use this but have fun😂",type:"me"}
+  ];
+  window.startChat=function(){
+    let i=0;
+    const box=document.getElementById("chatBox");
+    box.innerHTML="";
+    function send(){
+      if(i<convo.length){
+        let msg=document.createElement("div");
+        msg.className="msg "+convo[i].type;
+        msg.innerText=convo[i].text;
+        box.appendChild(msg);
+        setTimeout(()=>msg.classList.add("show"),50);
+        i++;
+        setTimeout(send,1000);
+      }
+    }
+    send();
+  };
 
-/* CHAT */
-const convo=[
-  {text:"Hey Cat 😄",type:"me"},
-  {text:"Happy late birthday...gift 🎉",type:"me"},
-  {text:"(this is how i'd imagine a reply😭) Wait… you remembered??",type:"her"},
-  {text:"Of course I did 😂",type:"me"},
-  {text:"You’re actually like a part of me(not weird😭)",type:"me"},
-  {text:"Aww stop 😭",type:"her"},
-  {text:"have fun with this🎉",type:"me"},
-  {text:"idk where you'll use this but have fun😂",type:"me"}
-];
-window.startChat=function(){
-  let i=0;
-  const box=document.getElementById("chatBox");
-  box.innerHTML="";
-  let dragging=false, offsetX=0, offsetY=0;
-  box.onmousedown=e=>{dragging=true; offsetX=e.offsetX; offsetY=e.offsetY; box.classList.add("dragging");};
-  window.onmouseup=()=>{dragging=false; box.classList.remove("dragging");};
-  window.onmousemove=e=>{if(dragging){box.style.position="absolute";box.style.left=(e.clientX-offsetX)+"px";box.style.top=(e.clientY-offsetY)+"px";}};
-  function send(){
-    if(i<convo.length){
-      let msg=document.createElement("div");
-      msg.className="msg "+convo[i].type;
-      msg.innerText=convo[i].text;
-      box.appendChild(msg);
-      setTimeout(()=>msg.classList.add("show"),50);
-      i++;
-      setTimeout(send,1000);
+  /* QUIZ */
+  const quiz=[
+    {q:"What do I usually call you?",options:["Cat 😝","Weirdo 😭","nigga🌚","All"],answer:3},
+    {q:"Who is more annoying?",options:["Me","You","Both 😭","Depends"],answer:2},
+    {q:"Favorite color?",options:["Grey","Green","Yellow","Orange"],answer:0},
+    {q:"My birthday?",options:["March 19","Jan 5","Dec 25","July 17"],answer:3},
+    {q:"First text?😭",options:["hiii😭","is that jenga?😭","happy birthday","hey"],answer:1},
+    {q:"Comfort food?",options:["Pizza","Chips","Chocolate","Ice cream"],answer:0},
+    {q:"Drink?",options:["Soda","Coffee","Juice","Water"],answer:3},
+    {q:"Emoji I spam?",options:["😂","😭","😛","❤️"],answer:1},
+    {q:"Free time?",options:["Gaming","Memes","Music","Sleep"],answer:2},
+    {q:"Funny habit?",options:["fumbling","funny😂","overthinking","All"],answer:3}
+  ];
+  let qi=0,score=0;
+  window.loadQuiz=function(){
+    let box=document.getElementById("quizBox");
+    if(qi>=quiz.length){
+      if(score>=7) unlockedSecret=true;
+      box.innerHTML=`<h2>Score: ${score}/${quiz.length}</h2>`;
+      return;
+    }
+    let q=quiz[qi];
+    box.innerHTML=`<h3>${q.q}</h3>`;
+    q.options.forEach((opt,i)=>{
+      let d=document.createElement("div");
+      d.className="option";
+      d.innerText=opt;
+      d.onclick=()=>{
+        if(i===q.answer) score++;
+        qi++;
+        loadQuiz();
+      };
+      box.appendChild(d);
+    });
+  };
+  loadQuiz();
+
+  /* SECRET */
+  window.reveal=function(){
+    if(!unlockedSecret){
+      document.getElementById("secretText").innerText="🚫 Score higher in the quiz 😭";
+      return;
+    }
+    document.getElementById("secretText").innerText=
+    "Okay… no jokes here,,I really appreciate you,,I love you nigga ❤️";
+    startConfetti();
+  };
+
+  /* MUSIC */
+  window.playMusic=function(){
+    document.getElementById("music").play();
+  };
+
+  /* NOTIFICATION */
+  window.notify=function(msg){
+    const n=document.getElementById("notify");
+    n.innerText=msg;
+    n.style.display="block";
+    setTimeout(()=>{n.style.display="none";},2000);
+  };
+
+  /* MEMORY GAME */
+  const memoryImages = ["img1.jpeg","img2.jpeg","img3.jpeg","img4.jpeg","img5.jpeg","img6.jpeg"];
+  let memGrid=[], firstCard=null, lockMem=false;
+
+  window.startMemory=function(){
+    memGrid=[];
+    const grid = document.getElementById("memoryGrid");
+    grid.innerHTML = "";
+    let imgs = [...memoryImages, ...memoryImages];
+    imgs.sort(()=>0.5 - Math.random());
+    imgs.forEach(src=>{
+      let c = document.createElement("div");
+      c.className = "card";
+      c.dataset.img = src;
+      c.onclick = flipCard;
+      grid.appendChild(c);
+      memGrid.push(c);
+    });
+  };
+
+  function flipCard(){
+    if(lockMem || this.classList.contains("flipped")) return;
+    this.style.backgroundImage = `url(${this.dataset.img})`;
+    this.classList.add("flipped");
+    if(!firstCard){
+      firstCard = this;
+      return;
+    }
+    if(firstCard.dataset.img === this.dataset.img){
+      firstCard = null;
+      checkMemoryComplete();
+    } else {
+      lockMem = true;
+      setTimeout(()=>{
+        this.classList.remove("flipped");
+        this.style.backgroundImage = "url('back.jpeg')";
+        firstCard.classList.remove("flipped");
+        firstCard.style.backgroundImage = "url('back.jpeg')";
+        firstCard = null;
+        lockMem = false;
+      },1000);
     }
   }
-  send();
-};
 
-/* QUIZ */
-const quiz=[
-  {q:"What do I usually call you?",options:["Cat 😝","Weirdo 😭","nigga🌚","All"],answer:3},
-  {q:"Who is more annoying?",options:["Me","You","Both 😭","Depends"],answer:2},
-  {q:"Favorite color?",options:["Grey","Green","Yellow","Orange"],answer:0},
-  {q:"My birthday?",options:["March 19","Jan 5","Dec 25","July 17"],answer:3},
-  {q:"First text?😭",options:["hiii😭","is that jenga?😭","happy birthday","hey"],answer:1},
-  {q:"Comfort food?",options:["Pizza","Chips","Chocolate","Ice cream"],answer:0},
-  {q:"Drink?",options:["Soda","Coffee","Juice","Water"],answer:3},
-  {q:"Emoji I spam?",options:["😂","😭","😛","❤️"],answer:1},
-  {q:"Free time?",options:["Gaming","Memes","Music","Sleep"],answer:2},
-  {q:"Funny habit?",options:["fumbling","funny😂","overthinking","All"],answer:3}
-];
-let qi=0,score=0;
-function loadQuiz(){
-  let box=document.getElementById("quizBox");
-  box.innerHTML="";
-  if(qi>=quiz.length){
-    if(score>=7) unlockedSecret=true;
-    box.innerHTML=`<h2>Score: ${score}/${quiz.length}</h2>`;
-    if(score>=7) startConfetti();
-    return;
+  function checkMemoryComplete(){
+    if(memGrid.every(c=>c.classList.contains("flipped"))){
+      unlockedSecret = true;
+      startConfetti();
+      notify("🎉 Memory completed! Secret unlocked!");
+    }
   }
-  let q=quiz[qi];
-  box.innerHTML=`<h3>${q.q}</h3>`;
-  q.options.forEach((opt,i)=>{
-    let d=document.createElement("div");
-    d.className="option";
-    d.innerText=opt;
-    d.onclick=()=>{
-      if(i===q.answer) score++;
-      qi++;
-      loadQuiz();
-    };
-    box.appendChild(d);
-  });
-}
-loadQuiz();
 
-/* MEMORY GAME */
-const memoryImages=["img1.jpeg","img2.jpeg","img3.jpeg","img4.jpeg","img5.jpeg","img6.jpeg"];
-let memGrid=[],firstCard=null,lockMem=false;
-function startMemory(){
-  memGrid=[];
-  const grid=document.getElementById("memoryGrid");
-  grid.innerHTML="";
-  let imgs=[...memoryImages,...memoryImages];
-  imgs.sort(()=>0.5-Math.random());
-  imgs.forEach((src,i)=>{
-    let c=document.createElement("div");
-    c.className="card";
-    c.dataset.img=src;
-    c.onclick=flipCard;
-    grid.appendChild(c);
-    memGrid.push(c);
-  });
-}
-function flipCard(){
-  if(lockMem||this.classList.contains("flipped")) return;
-  this.style.backgroundImage=`url(${this.dataset.img})`;
-  this.classList.add("flipped");
-  if(!firstCard){
-    firstCard=this;
-    return;
+  /* CONFETTI */
+  let particles=[],canvas=document.getElementById("particles"),ctx=canvas.getContext("2d");
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+
+  function initParticles(){
+    for(let i=0;i<100;i++){
+      particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*3+1,dx:(Math.random()-0.5)*1.5,dy:(Math.random()-0.5)*1.5,color:`hsl(${Math.random()*360},80%,60%)`});
+    }
+    animateParticles();
   }
-  if(firstCard.dataset.img===this.dataset.img){
-    firstCard=null;
-    checkMemoryComplete();
-  }else{
-    lockMem=true;
-    setTimeout(()=>{
-      this.classList.remove("flipped");
-      this.style.backgroundImage="";
-      firstCard.classList.remove("flipped");
-      firstCard.style.backgroundImage="";
-      firstCard=null;
-      lockMem=false;
-    },1000);
+  function animateParticles(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.x+=p.dx; p.y+=p.dy;
+      if(p.x<0||p.x>canvas.width)p.dx*=-1;
+      if(p.y<0||p.y>canvas.height)p.dy*=-1;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.color;
+      ctx.fill();
+    });
+    requestAnimationFrame(animateParticles);
   }
-}
-function checkMemoryComplete(){
-  if(memGrid.every(c=>c.classList.contains("flipped"))){
-    unlockedSecret=true;
-    startConfetti();
-    notify("🎉 Memory completed! Secret unlocked!");
-  }
-}
-
-/* SECRET */
-window.reveal=function(){
-  if(!unlockedSecret){
-    document.getElementById("secretText").innerText="🚫 Score higher in quiz or complete memory 😭";
-    return;
-  }
-  document.getElementById("secretText").innerText=
-  "Okay… no jokes here,,I really appreciate you,,I love you nigga ❤️";
-  startConfetti();
-};
-
-/* MUSIC */
-window.playMusic=function(){
-  document.getElementById("music").play();
-};
-
-/* PARTICLES */
-let canvas=document.getElementById("particles");
-let ctx=canvas.getContext("2d");
-canvas.width=window.innerWidth; canvas.height=window.innerHeight;
-let particles=[];
-for(let i=0;i<100;i++){
-  particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*3+1,dx:(Math.random()-0.5)*1.5,dy:(Math.random()-0.5)*1.5,color:`hsl(${Math.random()*360},80%,60%)`});
-}
-function animateParticles(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p=>{
-    p.x+=p.dx; p.y+=p.dy;
-    if(p.x<0||p.x>canvas.width)p.dx*=-1;
-    if(p.y<0||p.y>canvas.height)p.dy*=-1;
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    ctx.fillStyle=p.color;
-    ctx.fill();
-  });
-  requestAnimationFrame(animateParticles);
-}
-animateParticles();
-
-/* CONFETTI */
-function startConfetti(){
-  for(let i=0;i<150;i++){
-    setTimeout(()=>{
-      particles.push({x:Math.random()*canvas.width,y:-10,r:Math.random()*4+2,dx:(Math.random()-0.5)*2,dy:Math.random()*3+2,color:`hsl(${Math.random()*360},90%,60%)`});
-    },i*10);
-  }
-}
-
-/* NOTIFICATIONS */
-const notifMessages=[
-  "Hey… come back 😭",
-  "You left me just like that? 😤",
-  "I had something to say… 😌",
-  "Open the chat 😛",
-  "You're ignoring me now? 😂"
-];
-function notify(msg){
-  const n=document.getElementById("notif");
-  n.innerText="typing...";
-  n.style.display="block";
-  n.style.transform="scale(1.1)";
-  setTimeout(()=>{
-    n.innerText=msg;
-    n.style.transform="scale(1)";
-  },1200);
-  setTimeout(()=>{n.style.display="none";},4000);
-}
-setInterval(()=>{
-  if(Math.random()>0.7) notify(notifMessages[Math.floor(Math.random()*notifMessages.length)]);
-},20000);
-document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden){
-    setTimeout(()=>notify(notifMessages[Math.floor(Math.random()*notifMessages.length)]),1000);
-  }
-});
-
+  window.startConfetti=function(){
+    for(let i=0;i<150;i++){
+      setTimeout(()=>{particles.push({x:Math.random()*canvas.width,y:-10,r:Math.random()*4+2,dx:(Math.random()-0.5)*2,dy:Math.random()*3+2,color:`hsl(${Math.random()*360},90%,60%)`});},i*10);
+    }
+  };
+  initParticles();
 });
 </script>
+
 </body>
 </html>
