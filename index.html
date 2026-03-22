@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Cat System 🎉</title>
-
 <style>
 body{
   margin:0;
@@ -11,6 +10,7 @@ body{
   background:#020617;
   color:white;
   text-align:center;
+  overflow-x:hidden;
 }
 
 /* LOCK */
@@ -24,13 +24,11 @@ body{
   justify-content:center;
   align-items:center;
 }
-
 input{
   padding:10px;
   border-radius:8px;
   border:none;
 }
-
 button{
   padding:10px 15px;
   margin:10px;
@@ -39,11 +37,17 @@ button{
   background:linear-gradient(45deg,#3b82f6,#9333ea);
   color:white;
   cursor:pointer;
+  transition:0.3s;
 }
+button:hover{opacity:0.8;}
 
 /* SCREENS */
 .screen{display:none;padding:20px;}
 .active{display:block;}
+
+/* NAV BAR */
+#nav{margin:10px 0;}
+#nav button{margin:5px;}
 
 /* CHAT */
 .chat{max-width:400px;margin:auto;}
@@ -63,7 +67,9 @@ button{
   width:100%;
   border-radius:10px;
   cursor:pointer;
+  transition:0.5s;
 }
+.gallery img.flipped{transform:rotateY(180deg);}
 
 /* QUIZ */
 .option{
@@ -72,30 +78,34 @@ button{
   padding:10px;
   border-radius:8px;
   cursor:pointer;
+  transition:0.3s;
 }
 .option:hover{background:#3b82f6;}
 
-/* MEMORY */
-#memoryGrid{
-  display:flex;
-  flex-wrap:wrap;
+/* MEMORY GAME */
+.memory-grid{
+  display:grid;
+  grid-template-columns:repeat(4,100px);
   justify-content:center;
-  max-width:500px;
-  margin:auto;
+  gap:10px;
+  margin:20px 0;
 }
-.card{
-  width:100px;
-  height:100px;
-  margin:5px;
-  background:#1e293b url('back.jpeg') center/cover no-repeat;
+.memory-card{
+  width:100px;height:100px;
+  background:#1e293b;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:50px;
   border-radius:10px;
   cursor:pointer;
-  vertical-align:top;
-  transition:0.3s transform,0.3s background;
+  color:#020617;
+  user-select:none;
+  transition:0.3s;
 }
-.card.flipped{
-  transform:rotateY(180deg);
-  background-size:cover;
+.memory-card.flipped{
+  background:white;
+  color:black;
 }
 
 /* CONFETTI */
@@ -105,22 +115,10 @@ button{
   width:100%;
   height:100%;
   pointer-events:none;
-  z-index:9999;
-}
-
-/* NOTIFICATION */
-#notify{
-  position:fixed;
-  top:10px;
-  right:10px;
-  background:#3b82f6;
-  padding:10px 15px;
-  border-radius:10px;
-  display:none;
+  z-index:999;
 }
 </style>
 </head>
-
 <body>
 
 <!-- LOCK -->
@@ -133,12 +131,14 @@ button{
 <!-- HOME -->
 <div id="home" class="screen">
   <h1>🎂 Happy Birthday Cat 😛</h1>
-  <button onclick="goTo('chat')">💬 Chat</button>
-  <button onclick="goTo('gallery')">📸 Gallery</button>
-  <button onclick="goTo('quiz')">🎮 Quiz</button>
-  <button onclick="goTo('memory')">🧩 Memory</button>
-  <button onclick="goTo('secret')">🔐 Secret</button>
-  <button onclick="playMusic()">🎵 Music</button>
+  <div id="nav">
+    <button onclick="goTo('chat')">💬 Chat</button>
+    <button onclick="goTo('gallery')">📸 Gallery</button>
+    <button onclick="goTo('memory')">🧠 Memory Game</button>
+    <button onclick="goTo('quiz')">🎮 Quiz</button>
+    <button onclick="goTo('secret')">🔐 Secret</button>
+    <button onclick="playMusic()">🎵 Music</button>
+  </div>
 </div>
 
 <!-- CHAT -->
@@ -163,18 +163,18 @@ button{
   <button onclick="goTo('home')">⬅ Back</button>
 </div>
 
+<!-- MEMORY GAME -->
+<div id="memory" class="screen">
+  <h2>Memory Game 🧠</h2>
+  <div class="memory-grid" id="memoryGrid"></div>
+  <button onclick="initMemory()">Restart</button>
+  <button onclick="goTo('home')">⬅ Back</button>
+</div>
+
 <!-- QUIZ -->
 <div id="quiz" class="screen">
   <h2>Quiz 😏</h2>
   <div id="quizBox"></div>
-  <button onclick="goTo('home')">⬅ Back</button>
-</div>
-
-<!-- MEMORY -->
-<div id="memory" class="screen">
-  <h2>Memory Game 🧩</h2>
-  <div id="memoryGrid"></div>
-  <button onclick="startMemory()">Restart Memory</button>
   <button onclick="goTo('home')">⬅ Back</button>
 </div>
 
@@ -186,209 +186,157 @@ button{
   <button onclick="goTo('home')">⬅ Back</button>
 </div>
 
-<!-- CONFETTI -->
-<canvas id="particles"></canvas>
-
-<!-- NOTIFICATION -->
-<div id="notify"></div>
-
+<!-- MUSIC -->
 <audio id="music" loop>
   <source src="song.mp3" type="audio/mpeg">
 </audio>
 
+<canvas id="particles"></canvas>
+
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const PASSWORD="banana girl";
-  let unlockedSecret=false;
+document.addEventListener("DOMContentLoaded",()=>{
 
-  /* UNLOCK */
-  document.getElementById("unlockBtn").onclick=()=>{
-    let val=document.getElementById("pass").value.trim().toLowerCase();
-    if(val===PASSWORD){
-      document.getElementById("lock").style.display="none";
-      goTo('home');
-    } else alert("Wrong password 😭");
-  };
+const PASSWORD="banana girl";
+let unlockedSecret=false;
 
-  /* NAV */
-  window.goTo=function(screen){
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById(screen).classList.add('active');
-  };
-
-  /* CHAT */
-  const convo=[
-    {text:"Hey Cat 😄",type:"me"},
-    {text:"Happy late birthday...gift 🎉",type:"me"},
-    {text:"(this is how i'd imagine a reply😭) Wait… you remembered??",type:"her"},
-    {text:"Of course I did 😂",type:"me"},
-    {text:"You’re actually like a part of me(not weird😭)",type:"me"},
-    {text:"Aww stop 😭",type:"her"},
-    {text:"have fun with this🎉",type:"me"},
-    {text:"idk where you'll use this but have fun😂",type:"me"}
-  ];
-  window.startChat=function(){
-    let i=0;
-    const box=document.getElementById("chatBox");
-    box.innerHTML="";
-    function send(){
-      if(i<convo.length){
-        let msg=document.createElement("div");
-        msg.className="msg "+convo[i].type;
-        msg.innerText=convo[i].text;
-        box.appendChild(msg);
-        setTimeout(()=>msg.classList.add("show"),50);
-        i++;
-        setTimeout(send,1000);
-      }
-    }
-    send();
-  };
-
-  /* QUIZ */
-  const quiz=[
-    {q:"What do I usually call you?",options:["Cat 😝","Weirdo 😭","nigga🌚","All"],answer:3},
-    {q:"Who is more annoying?",options:["Me","You","Both 😭","Depends"],answer:2},
-    {q:"Favorite color?",options:["Grey","Green","Yellow","Orange"],answer:0},
-    {q:"My birthday?",options:["March 19","Jan 5","Dec 25","July 17"],answer:3},
-    {q:"First text?😭",options:["hiii😭","is that jenga?😭","happy birthday","hey"],answer:1},
-    {q:"Comfort food?",options:["Pizza","Chips","Chocolate","Ice cream"],answer:0},
-    {q:"Drink?",options:["Soda","Coffee","Juice","Water"],answer:3},
-    {q:"Emoji I spam?",options:["😂","😭","😛","❤️"],answer:1},
-    {q:"Free time?",options:["Gaming","Memes","Music","Sleep"],answer:2},
-    {q:"Funny habit?",options:["fumbling","funny😂","overthinking","All"],answer:3}
-  ];
-  let qi=0,score=0;
-  window.loadQuiz=function(){
-    let box=document.getElementById("quizBox");
-    if(qi>=quiz.length){
-      if(score>=7) unlockedSecret=true;
-      box.innerHTML=`<h2>Score: ${score}/${quiz.length}</h2>`;
-      return;
-    }
-    let q=quiz[qi];
-    box.innerHTML=`<h3>${q.q}</h3>`;
-    q.options.forEach((opt,i)=>{
-      let d=document.createElement("div");
-      d.className="option";
-      d.innerText=opt;
-      d.onclick=()=>{
-        if(i===q.answer) score++;
-        qi++;
-        loadQuiz();
-      };
-      box.appendChild(d);
-    });
-  };
-  loadQuiz();
-
-  /* SECRET */
-  window.reveal=function(){
-    if(!unlockedSecret){
-      document.getElementById("secretText").innerText="🚫 Score higher in the quiz 😭";
-      return;
-    }
-    document.getElementById("secretText").innerText=
-    "Okay… no jokes here,,I really appreciate you,,I love you nigga ❤️";
+/* UNLOCK */
+document.getElementById("unlockBtn").onclick=()=>{
+  let val=document.getElementById("pass").value.trim().toLowerCase();
+  if(val===PASSWORD){
+    document.getElementById("lock").style.display="none";
+    goTo('home');
     startConfetti();
-  };
+  } else alert("Wrong password 😭");
+};
 
-  /* MUSIC */
-  window.playMusic=function(){
-    document.getElementById("music").play();
-  };
+/* NAV */
+window.goTo=function(screen){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(screen).classList.add('active');
+};
 
-  /* NOTIFICATION */
-  window.notify=function(msg){
-    const n=document.getElementById("notify");
-    n.innerText=msg;
-    n.style.display="block";
-    setTimeout(()=>{n.style.display="none";},2000);
-  };
+/* CHAT */
+const convo=[
+  {text:"Hey Cat 😄",type:"me"},
+  {text:"Happy late birthday...gift 🎉",type:"me"},
+  {text:"(this is how i'd imagine a reply😭) Wait… you remembered??",type:"her"},
+  {text:"Of course I did 😂",type:"me"},
+  {text:"You’re actually like a part of me(not weird😭)",type:"me"},
+  {text:"Aww stop 😭",type:"her"},
+  {text:"have fun with this🎉",type:"me"},
+  {text:"idk where you'll use this but have fun😂",type:"me"}
+];
 
-  /* MEMORY GAME */
-  const memoryImages = ["img1.jpeg","img2.jpeg","img3.jpeg","img4.jpeg","img5.jpeg","img6.jpeg"];
-  let memGrid=[], firstCard=null, lockMem=false;
-
-  window.startMemory=function(){
-    memGrid=[];
-    const grid = document.getElementById("memoryGrid");
-    grid.innerHTML = "";
-    let imgs = [...memoryImages, ...memoryImages];
-    imgs.sort(()=>0.5 - Math.random());
-    imgs.forEach(src=>{
-      let c = document.createElement("div");
-      c.className = "card";
-      c.dataset.img = src;
-      c.onclick = flipCard;
-      grid.appendChild(c);
-      memGrid.push(c);
-    });
-  };
-
-  function flipCard(){
-    if(lockMem || this.classList.contains("flipped")) return;
-    this.style.backgroundImage = `url(${this.dataset.img})`;
-    this.classList.add("flipped");
-    if(!firstCard){
-      firstCard = this;
-      return;
-    }
-    if(firstCard.dataset.img === this.dataset.img){
-      firstCard = null;
-      checkMemoryComplete();
-    } else {
-      lockMem = true;
-      setTimeout(()=>{
-        this.classList.remove("flipped");
-        this.style.backgroundImage = "url('back.jpeg')";
-        firstCard.classList.remove("flipped");
-        firstCard.style.backgroundImage = "url('back.jpeg')";
-        firstCard = null;
-        lockMem = false;
-      },1000);
+window.startChat=function(){
+  let i=0;
+  const box=document.getElementById("chatBox");
+  box.innerHTML="";
+  function send(){
+    if(i<convo.length){
+      let msg=document.createElement("div");
+      msg.className="msg "+convo[i].type;
+      msg.innerText=convo[i].text;
+      box.appendChild(msg);
+      setTimeout(()=>msg.classList.add("show"),50);
+      i++;
+      setTimeout(send,1000);
     }
   }
+  send();
+};
 
-  function checkMemoryComplete(){
-    if(memGrid.every(c=>c.classList.contains("flipped"))){
-      unlockedSecret = true;
-      startConfetti();
-      notify("🎉 Memory completed! Secret unlocked!");
-    }
-  }
+/* QUIZ */
+const quiz=[
+  {q:"What do I usually call you?",options:["Cat 😝","Weirdo 😭","nigga🌚","All"],answer:3},
+  {q:"Who is more annoying?",options:["Me","You","Both 😭","Depends"],answer:2},
+  {q:"Favorite color?",options:["Grey","Green","Yellow","Orange"],answer:0},
+  {q:"My birthday?",options:["March 19","Jan 5","Dec 25","July 17"],answer:3},
+  {q:"First text?😭",options:["hiii😭","is that jenga?😭","happy birthday","hey"],answer:1},
+  {q:"Comfort food?",options:["Pizza","Chips","Chocolate","Ice cream"],answer:0},
+  {q:"Drink?",options:["Soda","Coffee","Juice","Water"],answer:3},
+  {q:"Emoji I spam?",options:["😂","😭","😛","❤️"],answer:1},
+  {q:"Free time?",options:["Gaming","Memes","Music","Sleep"],answer:2},
+  {q:"Funny habit?",options:["fumbling","funny😂","overthinking","All"],answer:3}
+];
 
-  /* CONFETTI */
-  let particles=[],canvas=document.getElementById("particles"),ctx=canvas.getContext("2d");
-  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+let qi=0,score=0;
 
-  function initParticles(){
-    for(let i=0;i<100;i++){
-      particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*3+1,dx:(Math.random()-0.5)*1.5,dy:(Math.random()-0.5)*1.5,color:`hsl(${Math.random()*360},80%,60%)`});
-    }
-    animateParticles();
+function loadQuiz(){
+  const box=document.getElementById("quizBox");
+  if(qi>=quiz.length){
+    if(score>=7) unlockedSecret=true;
+    box.innerHTML=`<h2>Score: ${score}/${quiz.length}</h2>
+    <button onclick="qi=0;score=0;loadQuiz();">Try Again</button>`;
+    return;
   }
-  function animateParticles(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    particles.forEach(p=>{
-      p.x+=p.dx; p.y+=p.dy;
-      if(p.x<0||p.x>canvas.width)p.dx*=-1;
-      if(p.y<0||p.y>canvas.height)p.dy*=-1;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=p.color;
-      ctx.fill();
-    });
-    requestAnimationFrame(animateParticles);
+  const q=quiz[qi];
+  box.innerHTML=`<h3>${q.q}</h3>`;
+  q.options.forEach((opt,i)=>{
+    const d=document.createElement("div");
+    d.className="option";
+    d.innerText=opt;
+    d.onclick=()=>{
+      if(i===q.answer) score++;
+      qi++;
+      loadQuiz();
+    };
+    box.appendChild(d);
+  });
+}
+loadQuiz();
+
+/* SECRET */
+window.reveal=function(){
+  if(!unlockedSecret){
+    document.getElementById("secretText").innerText="🚫 Score higher in the quiz 😭";
+    return;
   }
-  window.startConfetti=function(){
-    for(let i=0;i<150;i++){
-      setTimeout(()=>{particles.push({x:Math.random()*canvas.width,y:-10,r:Math.random()*4+2,dx:(Math.random()-0.5)*2,dy:Math.random()*3+2,color:`hsl(${Math.random()*360},90%,60%)`});},i*10);
-    }
-  };
-  initParticles();
+  document.getElementById("secretText").innerText=
+  "Okay… no jokes here,,I really appreciate you,, I love you nigga ❤️";
+  startConfetti();
+};
+
+/* MUSIC */
+window.playMusic=function(){
+  document.getElementById("music").play();
+};
+
+/* PARTICLES & CONFETTI */
+let canvas=document.getElementById("particles"),ctx=canvas.getContext("2d"),particles=[];
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+function initParticles(){for(let i=0;i<100;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*3+1,dx:(Math.random()-0.5)*1.5,dy:(Math.random()-0.5)*1.5,color:`hsl(${Math.random()*360},80%,60%)`});}}
+function animateParticles(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>canvas.width)p.dx*=-1;if(p.y<0||p.y>canvas.height)p.dy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();});requestAnimationFrame(animateParticles);}
+function startConfetti(){for(let i=0;i<150;i++){setTimeout(()=>{particles.push({x:Math.random()*canvas.width,y:-10,r:Math.random()*4+2,dx:(Math.random()-0.5)*2,dy:Math.random()*3+2,color:`hsl(${Math.random()*360},90%,60%)`});},i*10);}}
+initParticles();animateParticles();
+
+/* MEMORY GAME */
+const symbols=["🍕","🍫","🍦","🍩","🍭","🍿","🥤","🍪"];
+let memoryGrid=[];
+function initMemory(){
+  const grid=document.getElementById("memoryGrid");
+  memoryGrid=[...symbols,...symbols].sort(()=>0.5-Math.random());
+  grid.innerHTML="";
+  memoryGrid.forEach((s,i)=>{
+    const card=document.createElement("div");
+    card.className="memory-card";
+    card.innerText="";
+    card.dataset.symbol=s;
+    card.onclick=()=>flipCard(card);
+    grid.appendChild(card);
+  });
+  firstCard=null;secondCard=null;lockBoard=false;
+}
+let firstCard,secondCard,lockBoard=false;
+function flipCard(card){
+  if(lockBoard||card===firstCard)return;
+  card.classList.add("flipped");card.innerText=card.dataset.symbol;
+  if(!firstCard){firstCard=card;return;}
+  secondCard=card;
+  if(firstCard.dataset.symbol===secondCard.dataset.symbol){firstCard=null;secondCard=null;}
+  else{lockBoard=true;setTimeout(()=>{firstCard.classList.remove("flipped");firstCard.innerText="";secondCard.classList.remove("flipped");secondCard.innerText="";firstCard=null;secondCard=null;lockBoard=false;},1000);}
+}
+initMemory();
 });
 </script>
-
 </body>
 </html>
